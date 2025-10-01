@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ctg-emulator:
+    build: .
+    container_name: ctg-emulator
+    ports:
+      - "8765:8765"  # WebSocket основной
+      - "8766:8766"  # WebSocket health check
+    volumes:
+      - ./data:/app/data  # Монтируем папку с данными
+      - ./logs:/app/logs  # Монтируем папку для логов
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import websockets; import asyncio; async def test(): async with websockets.connect('ws://localhost:8766') as ws: await ws.recv(); asyncio.run(test())"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+  # Опционально: можно добавить клиент для тестирования
+  #test-client:
+  #  build: .
+  #  container_name: ctg-test-client
+  #  command: python -m app.test_client
+  #  depends_on:
+  #    - ctg-emulator
+ #   environment:
+  #    - WS_URL=ws://ctg-emulator:8765
