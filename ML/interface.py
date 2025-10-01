@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import pandas as pd, numpy as np
+import tsai
 
 class ModelInterference(nn.Module):
     def __init__(self, loader):
@@ -16,9 +17,18 @@ class ModelInterference(nn.Module):
         x = inputs.clone()
         x_new = self.predict_single(inputs)
         for _ in range(1, seq_len):
-            x = torch.concat([x, x_new], dim=len(x.shape)-2)
+            x = torch.concat([x[..., 1:, :], x_new], dim=len(x.shape)-2)
             x_new = self.predict_single(x)
+        x = torch.concat([x[..., 1:, :], x_new], dim=len(x.shape)-2)
         return x[..., -seq_len:, :]
     
     def predict_single(self, inputs):
-        return self.model(inputs)[..., -1:, :]
+        return self.model(inputs.clone())[..., -1:, :]
+
+
+class TSAIModel:
+    def __init__(self, weights_dir):
+        self.model = tsai.inference.load_learner(weights_dir)
+
+    def __call__(self, x):
+        return self.model.get_X_preds(x.transpose(-1, -2))[0].transpose(-1, -2)
