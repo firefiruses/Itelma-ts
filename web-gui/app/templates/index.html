@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0/dist/chartjs-plugin-streaming.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <h2>BPM</h2>
+                    <div class="chart-info">
+                        <span class="current-value" id="temp-value">--</span>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <span class="legend-color orange"></span>
+                                <span>Текущие данные</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color blue-dash"></span>
+                                <span>Прогноз</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart1"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <h2>Uterus</h2>
+                    <div class="chart-info">
+                        <span class="current-value" id="humidity-value">--</span>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <span class="legend-color orange"></span>
+                                <span>Текущие данные</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color blue-dash"></span>
+                                <span>Прогноз</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="chart2"></canvas>
+                </div>
+            </div>
+                <div class="hypoxia-text">
+                Вероятность гипоксии: --%
+                </div>
+        </div>
+        
+        <footer>
+        </footer>
+    </div>
+    
+    <script src="/static/js/charts.js"></script>
+</body>
+</html>

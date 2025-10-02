@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  ws-server:
+    build: ./ctg-emulator
+    container_name: ws-server
+    ports:
+      - "8000:8000"
+    networks:
+      - ws-network
+
+  ws-client:
+    build: ./web-gui
+    container_name: ws-client
+    ports:
+      - "8080:8000"
+    depends_on:
+      - ws-server
+    networks:
+      - ws-network
+
+networks:
+  ws-network:
+    driver: bridge
