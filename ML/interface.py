@@ -14,16 +14,18 @@ class ModelInterference(nn.Module):
             self.model = loader["model_variable"]
         
     def predict_sequence(self, inputs, seq_len):
+        inputs = torch.tensor(inputs)
         x = inputs.clone()
-        x_new = self.predict_single(inputs)
+        x_new = torch.tensor(self.predict_single(inputs))
         for _ in range(1, seq_len):
             x = torch.concat([x[..., 1:, :], x_new], dim=len(x.shape)-2)
-            x_new = self.predict_single(x)
+            x_new = torch.tensor(self.predict_single(x))
         x = torch.concat([x[..., 1:, :], x_new], dim=len(x.shape)-2)
-        return x[..., -seq_len:, :]
+        return x[..., -seq_len:, :].tolist()
     
     def predict_single(self, inputs):
-        return self.model(inputs.clone())[..., -1:, :]
+        inputs = torch.tensor(inputs)
+        return self.model(inputs.clone())[..., -1:, :].tolist()
 
 
 class TSAIModel:
@@ -34,4 +36,5 @@ class TSAIModel:
     def __call__(self, x):
         if self.is_forecast:
             return self.model.get_X_preds(x.transpose(-1, -2))[0].transpose(-1, -2)
+
         return self.model.get_X_preds(x.transpose(-1, -2))[0]
