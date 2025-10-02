@@ -27,8 +27,11 @@ class ModelInterference(nn.Module):
 
 
 class TSAIModel:
-    def __init__(self, weights_dir):
+    def __init__(self, weights_dir, is_forecast=True):
         self.model = tsai.inference.load_learner(weights_dir)
+        self.is_forecast = is_forecast
 
     def __call__(self, x):
-        return self.model.get_X_preds(x.transpose(-1, -2))[0].transpose(-1, -2)
+        if self.is_forecast:
+            return self.model.get_X_preds(x.transpose(-1, -2))[0].transpose(-1, -2)
+        return self.model.get_X_preds(x.transpose(-1, -2))[0]
