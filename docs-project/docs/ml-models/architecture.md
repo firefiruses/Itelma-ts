@@ -9,13 +9,14 @@
 •	длина патча: 24;<br />
 •	страйд при создании патчей: 2.<br />
 
-<h5>Ссылки:</h5><br />
+<h5>Ссылки:</h5>
 [1]
 https://www.sciencedirect.com/science/article/abs/pii/S0925231219311506<br />
 [2]
 https://github.com/timeseriesAI/tsai/tree/main<br />
 [3]
 https://arxiv.org/abs/2211.14730<br />
+
 
 
 
