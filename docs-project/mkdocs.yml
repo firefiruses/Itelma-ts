@@ -30,9 +30,9 @@ theme:
 # Плагины
 plugins:
   - search
-  - git-committers:
-      repository: firefiruses/Itelma-ts
-      branch: main
+ # - git-committers:
+ #     repository: firefiruses/Itelma-ts
+ #     branch: main
   - git-revision-date-localized:
       enable_creation_date: true
 
