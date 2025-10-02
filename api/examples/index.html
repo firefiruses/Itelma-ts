@@ -874,7 +874,99 @@
 
   <h1>Примеры</h1>
 
-
+<p>Примеры использования</p>
+<p>JavaScript (браузер)</p>
+<p>javascript</p>
+<p>// Подключение к потоку данных ЧСС</p>
+<p>const eventSource = new EventSource('/stream/bpm');</p>
+<p><br></p>
+<p>eventSource.onmessage = function(event) {</p>
+<p>const data = JSON.parse(event.data);</p>
+<p><br></p>
+<p>if (Array.isArray(data)) {</p>
+<p>// Обработка массива точек (пакетное предсказание)</p>
+<p>data.forEach(point =&gt; processDataPoint(point));</p>
+<p>} else {</p>
+<p>// Обработка одиночной точки</p>
+<p>processDataPoint(data);</p>
+<p>}</p>
+<p>};</p>
+<p><br></p>
+<p>function processDataPoint(point) {</p>
+<p>switch(point.type) {</p>
+<p>case 'point':</p>
+<p>if (point.real !== undefined) {</p>
+<p>updateRealChart(point.real, point.chart);</p>
+<p>}</p>
+<p>if (point.predicted !== undefined) {</p>
+<p>updatePredictedChart(point.predicted, point.chart);</p>
+<p>}</p>
+<p>break;</p>
+<p>case 'shift':</p>
+<p>applyTimeShift(point.shift);</p>
+<p>break;</p>
+<p>}</p>
+<p>}</p>
+<p><br></p>
+<p>// Закрытие соединения при необходимости</p>
+<p>// eventSource.close();</p>
+<p>Python</p>
+<p>python</p>
+<p>import requests</p>
+<p>import json</p>
+<p><br></p>
+<p>def stream_fetal_data(chart_id='bpm', callback=None):</p>
+<p>"""</p>
+<p>Потоковая передача данных фетального монитора</p>
+<p><br></p>
+<p>Args:</p>
+<p>chart_id: тип данных ('bpm' или 'uc')</p>
+<p>callback: функция для обработки полученных данных</p>
+<p>"""</p>
+<p>url = f'http://your-server:8000/stream/{chart_id}'</p>
+<p><br></p>
+<p>try:</p>
+<p>with requests.get(url, stream=True, timeout=30) as response:</p>
+<p>response.raise_for_status()</p>
+<p><br></p>
+<p>for line in response.iter_lines(decode_unicode=True):</p>
+<p>if line:</p>
+<p>try:</p>
+<p>data = json.loads(line)</p>
+<p>if callback:</p>
+<p>callback(data)</p>
+<p>else:</p>
+<p>process_data(data)</p>
+<p>except json.JSONDecodeError as e:</p>
+<p>print(f"Ошибка декодирования JSON: {e}")</p>
+<p><br></p>
+<p>except requests.exceptions.RequestException as e:</p>
+<p>print(f"Ошибка подключения: {e}")</p>
+<p><br></p>
+<p>def process_data(data):</p>
+<p>"""Обработка полученных данных"""</p>
+<p>if isinstance(data, list):</p>
+<p>for item in data:</p>
+<p>handle_data_point(item)</p>
+<p>else:</p>
+<p>handle_data_point(data)</p>
+<p><br></p>
+<p>def handle_data_point(point):</p>
+<p>"""Обработка отдельной точки данных"""</p>
+<p>if point['type'] == 'point':</p>
+<p>if 'real' in point:</p>
+<p>print(f"Реальные данные [{point['chart']}]: {point['real']}")</p>
+<p>if 'predicted' in point:</p>
+<p>print(f"Предсказание [{point['chart']}]: {point['predicted']}")</p>
+<p>elif point['type'] == 'shift':</p>
+<p>print(f"Сдвиг временной шкалы: {point['shift']} сек")</p>
+<p><br></p>
+<p># Использование</p>
+<p>stream_fetal_data('bpm', process_data)</p>
+<p>cURL</p>
+<p>bash</p>
+<p># Просмотр сырого потока данных</p>
+<p>curl -N http://your-server:8000/stream/bpm</p>
 
 
 
@@ -897,7 +989,7 @@
     <span class="md-icon" title="Последнее обновление">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2 октября 2025 г. 18:52:39 UTC">2 октября 2025 г.</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="2 октября 2025 г. 20:42:42 UTC">2 октября 2025 г.</span>
   </span>
 
     
