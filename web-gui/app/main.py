@@ -46,7 +46,7 @@ last_points = {"bpm":[], "uterus":[]}
 all_delays = {"bpm":0, "uterus":0}
 predict_models = {"bpm" : TSAIModel("./ML/model/patchTST_bpm_50.pt"), "uterus" : TSAIModel("./ML/model/patchTST_uterus_50.pt")}
 predict_buffer_array = {"bpm" : [], "uterus" : []}
-classifier = TSAIModel("res_cnn_50_60epochs.pt", is_forecast=False)
+classifier = TSAIModel("./ML/model/res_cnn_50_60epochs.pt", is_forecast=False)
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -147,7 +147,7 @@ async def get_data_pair(val, chart_id, timestamp, predict_delay = 0, real_delay 
 async def generate_chart_data(chart_id: str):
     uri = "ws://ws-server:8765"
     async with websockets.connect(uri) as ws:
-        command = {"action": "start", "patient_type" : 'regular', "folder_number" : 5}
+        command = {"action": "start", "patient_type" : 'regular', "folder_number" : 1}
         await ws.send(json.dumps(command))
         type = 'bpm' if chart_id == "bpm" else 'uc'
         point_counter = 0

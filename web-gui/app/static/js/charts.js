@@ -92,15 +92,6 @@ class RealtimeChart {
                         ticks: {
                             color: '#040404ff',
                             font: { size: 11 },
-                            callback: function(value, index, ticks) {
-                                const date = new Date(value);
-                                return date.toLocaleTimeString('ru-RU', {
-                                    hour12: false,
-                                    hour: '2-digit', 
-                                    minute: '2-digit',
-                                    second: '2-digit'
-                                });
-                            }
                         }
                     },
                     y: {
@@ -194,7 +185,6 @@ class RealtimeChart {
         }
 
         if (dataPair.shift){
-            console.log("SHIIIIIIFT")
             this.shiftTimeData(-(dataPair.shift * 1000))
         }
 
@@ -218,7 +208,6 @@ class RealtimeChart {
     
     connectToStream() {
         this.setConnectionStatus(true);
-        console.log(this.config.chartId)
         this.eventSource = new EventSource(`/stream/${this.config.chartId}`);
         
         this.eventSource.onopen = () => {
@@ -232,7 +221,6 @@ class RealtimeChart {
                 const dataPair = JSON.parse(event.data);
 
                 if (Array.isArray(dataPair)) {
-                    console.log('Array')
                     for (let i = 0; i < dataPair.length; i++) {
                         this.process_input_data(dataPair[i]);
                     }
