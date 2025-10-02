@@ -1,0 +1,72 @@
+site_name: "Фетальная аналитическая платформа"
+site_description: "Веб-сервис предиктивной аналитики для мониторинга состояния плода"
+site_author: "ПГНИУ-ЦИИ-ВР"
+
+# Тема
+theme:
+  name: material
+  language: ru
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.follow
+    - navigation.top
+    - search.suggest
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+# Плагины
+plugins:
+  - search
+  - git-committers:
+      repository: firefiruses/Itelma-ts
+      branch: main
+  - git-revision-date-localized:
+      enable_creation_date: true
+
+# Навигация
+nav:
+  - Главная: index.md
+  - Руководство пользователя:
+    - Быстрый старт: user-guide/quick-start.md
+    - Интерфейс: user-guide/interface.md
+  - API документация:
+    - Обзор: api/overview.md
+    - Эндпоинты: api/endpoints.md
+    - Примеры: api/examples.md
+  - ML модели:
+    - Архитектура: ml-models/architecture.md
+    - PatchTST: ml-models/patches.md
+    - ResCNN: ml-models/rescnn.md
+  - Разработка:
+    - Установка: development/setup.md
+    - Контрибьюция: development/contribution.md
+  - Развертывание: deployment.md
+
+# Дополнительные настройки
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/firefiruses/Itelma-ts
+    - icon: fontawesome/solid/globe
+      link: https://firefiruses.github.io/Itelma-ts
+
+markdown_extensions:
+  - admonition
+  - tables
+  - codehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.details  
