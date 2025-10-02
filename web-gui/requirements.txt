@@ -3,11 +3,17 @@ uvicorn[standard]==0.24.0
 jinja2==3.1.2
 sse-starlette==1.8.2
 websockets
-tsai
+numpy==1.24.4
+pandas
+pathlib
+
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==2.1.2+cpu
 torchvision==0.16.2+cpu
-numpy
-pandas
-pathlib
-fastai
+
+fastcore==1.7.29
+fastai==2.7.19
+tsai==0.3.9
+cloudpickle
+fasttransform
+IPython

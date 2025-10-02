@@ -180,7 +180,6 @@ class RealtimeChart {
             const realValue = dataPair.real.value;
             const timestamp = dataPair.real.timestamp * 1000;
             this.addRealData(realValue, timestamp);
-            this.updateCurrentValue(realValue);
         }
 
         if (dataPair.predicted) {
@@ -198,22 +197,28 @@ class RealtimeChart {
             console.log("SHIIIIIIFT")
             this.shiftTimeData(-(dataPair.shift * 1000))
         }
+
+        if (dataPair.class){
+            const elementId = 'ht';
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = `${dataPair.class*100}%`;
+                
+                element.style.transform = 'scale(1.1)';
+                element.style.color = '#FF8C00';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                    element.style.color = '';
+                }, 200);
+            }
+        }
         
         this.chart.update('none');
     }
     
     connectToStream() {
-        fetch(`/initial-data/${this.config.chartId}`)
-            .then(response => response.json())
-            .then(data => {
-                this.data = data.data || [];
-                this.setConnectionStatus(true);
-            })
-            .catch(error => {
-                console.error('Error fetching initial cdata:', error);
-                this.setConnectionStatus(false);
-            });
-        
+        this.setConnectionStatus(true);
+        console.log(this.config.chartId)
         this.eventSource = new EventSource(`/stream/${this.config.chartId}`);
         
         this.eventSource.onopen = () => {
@@ -255,21 +260,6 @@ class RealtimeChart {
                 }, delay);
             }
         };
-    }
-    
-    updateCurrentValue(value) {
-        const elementId = this.config.chartId === 'chart1' ? 'temp-value' : 'humidity-value';
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = `${value}`;
-            
-            element.style.transform = 'scale(1.1)';
-            element.style.color = '#FF8C00';
-            setTimeout(() => {
-                element.style.transform = 'scale(1)';
-                element.style.color = '';
-            }, 200);
-        }
     }
     
     setConnectionStatus(connected, message = null) {
@@ -314,14 +304,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     try {
         BPMChart = new RealtimeChart('chart1', {
-            chartId: 'chart1',
+            chartId: 'bpm',
             label: 'BPM',
             yMin: 15,
             yMax: 35
         });
         
         UterusChart = new RealtimeChart('chart2', {
-            chartId: 'chart2',
+            chartId: 'uterus',
             label: 'Uterus',
             yMin: 20,
             yMax: 80

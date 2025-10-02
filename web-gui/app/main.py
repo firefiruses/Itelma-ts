@@ -42,9 +42,11 @@ maxpredicteddatas = {"bpm":100, "uterus":100}
 delays_max_counts = {"bpm":50, "uterus":50}
 points_before_predicts = {"bpm": 50, "uterus": 50}
 predict_points = {"bpm": 10, "uterus": 10}
+last_points = {"bpm":[], "uterus":[]}
 all_delays = {"bpm":0, "uterus":0}
 predict_models = {"bpm" : TSAIModel("./ML/model/patchTST_bpm_50.pt"), "uterus" : TSAIModel("./ML/model/patchTST_uterus_50.pt")}
 predict_buffer_array = {"bpm" : [], "uterus" : []}
+classifier = TSAIModel("res_cnn_50_60epochs.pt", is_forecast=False)
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -54,27 +56,27 @@ async def index(request: Request):
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
-async def predict_many(chartid, points, point_count):
-    """points = [3, 5, 6, 7...]"""
-    if len(points) != 50:
-        raise Exception('Invalid predict data')
-    points = points[:]
-
-    for i in range(point_count):
-        new_point = await predict_one(chartid, points)
-        yield new_point
-        points.append(new_point)
-        points.pop(0)
-    yield None
 
 async def predict_one(chartid, points):
     if len(points) != 50:
         raise Exception('Invalid predict data')
-    tensor = torch.tensor(points).unsqueeze(0).unsqueeze(2)
-    yield predict_models[chartid](tensor).to_list()[0,0,0]
+    tensor = torch.tensor(points, dtype=torch.float)  .unsqueeze(0).unsqueeze(2)
+    return predict_models[chartid](tensor).to_list()[0,0,0]
 
+async def classifier_seq(chartid, points1 = None, points2 = None):
+    if points1 is None:
+        points1 = last_points['bpm'][:]
+    if points2 is None:
+        points2 = last_points['uterus'][:]
+    if len(points1) != 50 or len(points2) != 50:
+        raise Exception('Invalid predict data')
+    combined = torch.tensor(list(zip(points1, points2)), dtype=torch.float32)
+
+    tensor = combined.unsqueeze(0)
+    return classifier(tensor).to_list()[0,0]
 
 async def get_data_pair(val, chart_id, timestamp, predict_delay = 0, real_delay = 0, predict = False, real = True, timestamp_real = None):
+        global predict_buffer_array
         if timestamp_real is None:
             timestamp_real = timestamp
         
@@ -92,16 +94,18 @@ async def get_data_pair(val, chart_id, timestamp, predict_delay = 0, real_delay 
 
             if len(buffer["real"]) >= maxrealdatas[chart_id]:
                 buffer["real"].pop(0)
-            buffer["real"].append(real_point)
+            buffer["real"].append(real_value)
+
+            last_points[chart_id].append(real_value)
+            if len(last_points) > 50:
+                last_points.pop(0)
 
             if (len(predict_buffer_array[chart_id]) > 0):
-                predict_buffer_array[chart_id][0] = real_point 
-                print('Change first point on real')
+                predict_buffer_array[chart_id][0] = round(real_value, 1)
 
         if predict:
             if (len(predict_buffer_array[chart_id]) <= 0):
                 predict_buffer_array[chart_id] = buffer["real"][len(buffer['real'])-50:]
-                print(f'Add {len(predict_buffer_array[chart_id])} to buffer')
 
             predicted_value = await predict_one(chart_id, predict_buffer_array[chart_id])
             predict_buffer_array[chart_id].pop(0)
@@ -116,7 +120,7 @@ async def get_data_pair(val, chart_id, timestamp, predict_delay = 0, real_delay 
             
             if len(buffer["predicted"]) >= maxpredicteddatas[chart_id]:
                 buffer["predicted"].pop(0)
-            buffer["predicted"].append(predicted_point)
+            buffer["predicted"].append(predicted_value)
         
         if real and predict:
             data_pair = {
@@ -138,7 +142,7 @@ async def get_data_pair(val, chart_id, timestamp, predict_delay = 0, real_delay 
                 "chart": chart_id,
             }
 
-        yield data_pair
+        return data_pair
 
 async def generate_chart_data(chart_id: str):
     uri = "ws://ws-server:8765"
@@ -161,7 +165,6 @@ async def generate_chart_data(chart_id: str):
 
             msg = await ws.recv()
             data = json.loads(msg)
-            print(data)
 
             if 'type' in data and data['type'] == (type):
                 
@@ -197,6 +200,12 @@ async def generate_chart_data(chart_id: str):
                     data_pair = await get_data_pair(val, chart_id, timestamp, real_delay=(-all_delay), predict_delay=delay, predict= True, real= True)
                     predicted_stack.pop(0)
                     predicted_stack.append(timestamp)
+
+                    if len(last_points["bpm"])==50 and len(last_points['uterus']) == 50:
+                        clas = await classifier_seq(chart_id)
+                        class_data = {"type" : 'class',
+                                      "class": clas}
+                        data_pair = [data_pair, class_data]
 
                     yield f"{json.dumps(data_pair)}\n\n"
                 else:

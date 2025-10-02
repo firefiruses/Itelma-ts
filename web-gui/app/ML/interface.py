@@ -35,7 +35,7 @@ class TSAIModel:
         model_path = Path(weights_dir)
         if not model_path.exists():
             raise FileNotFoundError(f"Model file not found: {weights_dir}")
-        self.model = load_learner(weights_dir)
+        self.model = load_learner(weights_dir , cpu=True)
         self.is_forecast = is_forecast
 
     def __call__(self, x):
